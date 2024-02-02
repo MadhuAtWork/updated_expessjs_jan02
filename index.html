@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Frontend Example</title>
+  </head>
+  <body>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        document
+          .getElementById("submitBtnPost")
+          .addEventListener("click", sendData);
+
+        document
+          .getElementById("submitBtnGet")
+          .addEventListener("click", getData);
+
+          document
+          .getElementById("submitBtnimg")
+          .addEventListener("click",getImg);
+          document
+          .getElementById("submitBtnValidateCaptcha")
+          .addEventListener("click",validationChaptcha);
+
+
+          document.getElementById("name").addEventListener("change", handleChange);
+          document.getElementById("age").addEventListener("change", handleChange);
+          document.getElementById("gender").addEventListener("change", handleChange);
+      });
+
+
+      var name ="";
+      var age  ="";
+      var gender ="";
+
+      function handleChange(){
+       name = document.getElementById("name").value;
+       age = document.getElementById("age").value;
+       gender = document.getElementById("gender").value;
+     
+   
+      }
+
+
+      function sendData() {
+
+        name = document.getElementById("name").value;
+       age = document.getElementById("age").value;
+       gender = document.getElementById("gender").value;
+        const data = {
+          name: name,
+          age: age,
+          gender:gender
+        };
+
+        fetch("http://192.168.0.153:5000/taskSaveApi", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("Success:", data);
+            var name = data.data;
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+
+function getImg() {
+        fetch("http://192.168.0.153:5000/captcha", {
+          method: "GET",
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("Success:", data);
+            var captcha = data.data;
+            captchaimageFn(captcha)
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+
+      function captchaimageFn (captcha){
+       var captchahtml = document.getElementById("captcha");
+       console.log(captcha);
+       captchahtml.innerHTML =`
+       <img src="data:image/svg+xml;base64,${captcha.img}" alt="captcha" width="100px" height="40px" />
+       `
+      }
+
+
+      function validationChaptcha (){
+        var captcha = document.getElementById("captchaVlaue").value;
+        console.log(captcha);
+        fetch("http://192.168.0.153:5000/validateCaptcha", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({captcha: captcha}),
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            console.log("Success:", data);
+            var captcha = data.data;
+            // captchaimageFn(captcha)
+            alert(data.message);
+            document.getElementById("captchaVlaue").value = "";
+        })
+      }
+
+      window.onload = function (){
+  fetch("http://192.168.0.153:5000/getDbDataApi", {
+          method: "GET",
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("Success:", data);
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+          getImg()
+      }
+   
+    </script>
+    <style>
+      body {
+        font-family: sans-serif;
+        display: flex;
+    justify-content: center;
+    align-items: center;
+      }
+
+            #submitBtnPost {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        padding: 10px 20px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background-color: #f2f2f2;
+        color: #444;
+        cursor: pointer;
+      }
+      #submitBtnGet {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        padding: 10px 20px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background-color: #f2f2f2;
+        color: #444;
+        cursor: pointer;
+      }
+      #submitBtnPost:hover {
+        background-color: #ddd;
+      }
+      #submitBtnGet:hover {
+        background-color: #ddd;
+      }
+      #submitBtnPost:active {
+        background-color: #ccc;
+      }
+      #submitBtnGet:active {
+        background-color: #ccc;
+      }
+  .input{
+    width: 200px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding: 10px 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .main{
+    width: 20%;
+    height: 400px;
+    border: 0.5px solid lightgray;
+  }
+    </style>
+
+
+    </style>
+    <div class="main">
+      <div >
+        <input id="name" class="input" />
+      </div>
+      <div >
+        <input id="age" class="input"/>
+      </div>
+      <div>
+        <input id="gender"  class="input" />
+      </div>
+      <br />
+      <div id="captcha">
+        
+      </div>
+      <input id="captchaVlaue"  class="input" />
+      <br />
+      <button id="submitBtnPost">Submit Data</button>
+      <button id="submitBtnGet">Get Data</button>
+      <button id="submitBtnimg">Refersh Captcha</button>
+      <button id="submitBtnValidateCaptcha">Validate Captcha</button>
+    </div>
+    <div id="data">
+    </div>
+  </body>
+</html>
